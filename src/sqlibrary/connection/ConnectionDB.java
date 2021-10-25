@@ -22,7 +22,7 @@ public class ConnectionDB {
 
     public static boolean dbExists(Class<?> x) {
         Preferences prefs = Preferences.userNodeForPackage(x);
-        return Boolean.getBoolean(prefs.get("BancoDados", "false"));
+        return prefs.getBoolean("BancoDados", false);
     }
 
     protected Connection getConnection() {
@@ -41,12 +41,11 @@ public class ConnectionDB {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            return null;
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
             System.out.println("Erro de conexão: " + e.getMessage());
             return null;
         }
-        return null;
     }
 
     /*

@@ -80,6 +80,18 @@ public class DBSettings {
         return classForName;
     }
 
+    public String getHost() {
+        return host;
+    }
+
+    public String getDataBase() {
+        return dataBase;
+    }
+
+    public Integer getPorta() {
+        return porta;
+    }
+
     @Override
     public String toString() {
         return "DBSettings{" +

@@ -1,5 +1,7 @@
 package sqlibrary.connection;
 
+import sqlibrary.util.Store;
+
 import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -21,47 +23,14 @@ public class CriarBancoAuto {
     private static final String WHITE = "\033[0;97m";   // WHITE
     public static final String CYAN = "\033[0;36m";    // CYAN
 
-    private final String sql = "CREATE TABLE user (\n" +
-            "id int not null primary key identity,\n" +
-            "nome varchar(100) not null,\n" +
-            "password varchar(256) not null,\n" +
-            "user_image longvarchar,\n" +
-            "type varchar(10) default 'comum');";
-
-    private String[] stataments;
-
-    private boolean executeCreation() {
-        stataments = sql.split(";|;\\s");
-        Statement currentStatement = null;
-
-        ConnectionDB con = new ConnectionDB();
-
-        for (String comand : stataments) {
-            try {
-                // Execute statement
-                currentStatement = con.getConnection().createStatement();
-                currentStatement.execute(comand.concat(";"));
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
-            } finally {
-                // Release resources
-                if (currentStatement != null) {
-                    try {
-                        con.getConnection().close();
-                        currentStatement.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-                currentStatement = null;
-            }
-        }
-        return true;
+    public static boolean autoCreate(Class<?> wrapper, FileInputStream sql){
+        DBSettings dbSettings = settingsByTerminal();
+        Store.createFile(dbSettings);
+        createBancoPadrao(dbSettings, wrapper, sql);
+        return ConnectionDB.dbExists(wrapper);
     }
 
-    public static void createBancoPadrao(DBSettings settings, Class<?> x, FileInputStream inputFile) {
+    public static void createBancoPadrao(DBSettings settings, Class<?> wrapper, FileInputStream inputFile) {
         ConnectionDB.setDBSettings(settings);
         // Delimiter
         String delimiter = ";";
@@ -73,7 +42,6 @@ public class CriarBancoAuto {
         while (scanner.hasNext()) {
             // Get statement
             String rawStatement = scanner.next() + delimiter;
-            System.out.println(rawStatement);
             try {
                 // Execute statement
                 currentStatement = con.getConnection().createStatement();
@@ -97,25 +65,26 @@ public class CriarBancoAuto {
         //fim do loop
 
         //Ativa o banco de dados padrao
-        Preferences prefs = Preferences.userNodeForPackage(x);
-        prefs.put("BancoDados", "true");
+        Preferences prefs = Preferences.userNodeForPackage(wrapper);
+        prefs.putBoolean("BancoDados", true);
     }
 
     public static DBSettings settingsByTerminal() {
         Scanner scan = new Scanner(System.in);
         Integer tipoBanco;
-        String host, user = null, password = null, name, correto;
+        String host, user, password , name, correto;
         Integer porta = 0;
         DBType type;
-        DBSettings banco;
 
         System.out.print(WHITE);
         System.out.println("Configuração Inicial!");
 
         while (true) {
+            user = "default";
+            password = null;
             System.out.print(WHITE);
             System.out.println("-------------------------------------------------");
-            System.out.println("Tipo de banco há ser configurado");
+            System.out.println("Tipo de banco há ser configurado.");
             System.out.println("1 - Default");
             System.out.println("2 - MySQL");
             System.out.println("3 - Maria DB");
@@ -157,42 +126,49 @@ public class CriarBancoAuto {
             System.out.print(GREEN);
             host = scan.next();
 
+            if (type != DBType.SQLITE) {
 
-            if (type == DBType.MYSQL || type == DBType.MARIA_DB) {
-                System.out.print(WHITE);
-                System.out.println("-------------------------------------------------");
-                System.out.print("Digite a porta correspondente ao banco de dados: ");
-                while (true) {
-                    try {
-                        System.out.print(GREEN);
-                        porta = Integer.parseInt(scan.next());
-                        break;
-                    } catch (NumberFormatException e) {
-                        System.out.print(RED);
-                        System.out.println("Entrada inválida!");
-                        System.out.print("Digite novamente a porta correspondente ao Banco escolhido: ");
-                        System.out.print(GREEN);
+                if (type != DBType.HSQLDB){
+                    System.out.print(WHITE);
+                    System.out.println("-------------------------------------------------");
+                    System.out.println("Digite a porta correspondente ao banco de dados.");
+                    System.out.print("Porta: ");
+                    while (true) {
+                        try {
+                            System.out.print(GREEN);
+                            porta = Integer.parseInt(scan.next());
+                            break;
+                        } catch (NumberFormatException e) {
+                            System.out.print(RED);
+                            System.out.println("Entrada inválida!");
+                            System.out.println("Digite novamente a porta correspondente ao Banco escolhido.");
+                            System.out.print("Porta: ");
+                            System.out.print(GREEN);
+                        }
                     }
                 }
 
                 System.out.print(WHITE);
                 System.out.println("-------------------------------------------------");
-                System.out.print("Digite o usuario para acesso no banco: ");
+                System.out.println("Digite o usuario para acesso no banco.");
+                System.out.print("Usuário: ");
                 System.out.print(GREEN);
                 user = scan.next();
 
 
                 System.out.print(WHITE);
                 System.out.println("-------------------------------------------------");
-                System.out.println("Digite a senha para acesso ao banco");
-                System.out.print("Sua senha será Criptografada: ");
+                System.out.println("Digite a senha para acesso ao banco.");
+                System.out.println("Sua senha será Criptografada");
+                System.out.print("Senha: ");
                 System.out.print(GREEN);
                 password = scan.next();
             }
 
             System.out.print(WHITE);
             System.out.println("-------------------------------------------------");
-            System.out.print("Digite o nome para o banco de dados: ");
+            System.out.println("Digite o nome para o banco de dados. ");
+            System.out.print("Nome do banco: ");
             System.out.print(GREEN);
             name = scan.next();
 
@@ -211,7 +187,7 @@ public class CriarBancoAuto {
 
             System.out.println("-------------------------------------------------");
             System.out.println("Verifique se as informações acima estão corretas.");
-            System.out.print("Digite 'S' para sim ou 'N' para Não. ");
+            System.out.print("Digite 'S' para Sim ou 'N' para Não. ");
             System.out.print(GREEN);
             while (true) {
                 correto = scan.next();
@@ -220,13 +196,14 @@ public class CriarBancoAuto {
                 } else {
                     System.out.print(RED);
                     System.out.println("Entrada inválida!");
-                    System.out.print("Digite 'S' para sim ou 'N' para Não. ");
+                    System.out.print("Digite 'S' para Sim ou 'N' para Não. ");
                     System.out.print(GREEN);
                 }
             }
 
             //final do Scanner
             if (correto.equals("S") || correto.equals("s")) break;
+
         }
         System.out.print(RESET);
         return new DBSettings(type, host, porta, name, user, criptoHash(password));
@@ -234,7 +211,7 @@ public class CriarBancoAuto {
 
 
     private static String criptoHash(String senha) {
-        if (senha == null) return null;
+        if (senha == null) return "default";
 
         MessageDigest algorithm;
         try {

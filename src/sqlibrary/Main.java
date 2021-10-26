@@ -1,9 +1,6 @@
 package sqlibrary;
 
-import sqlibrary.annotation.ForeignKey;
-import sqlibrary.annotation.PrimaryKey;
-import sqlibrary.annotation.TableCollumn;
-import sqlibrary.annotation.TableName;
+import sqlibrary.annotation.*;
 import sqlibrary.connection.ConnectionDB;
 import sqlibrary.connection.CriarBancoAuto;
 import sqlibrary.queries.SQLQueries;
@@ -35,14 +32,22 @@ public class Main {
                 e.printStackTrace();
             }
         }*/
-/*
-        Model1 model = new Model1();
-        System.out.println(SQLQueries.delete(model));
+
+        Model model = new Model();
+        Model1 model1 = new Model1();
+        Model2 model2 = new Model2();
+
         System.out.println(SQLQueries.insertInto(model));
         System.out.println(SQLQueries.update(model));
+        System.out.println(SQLQueries.insertInto(model1));
+        System.out.println(SQLQueries.update(model1));
+        System.out.println(SQLQueries.insertInto(model2));
+        System.out.println(SQLQueries.update(model2));
+
+        System.out.println(SQLQueries.delete(model));
         System.out.println(SQLQueries.selectAll("teste"));
         System.out.println(SQLQueries.getLastID(model));
-        System.out.println(SQLQueries.selectById(model));*/
+        System.out.println(SQLQueries.selectById(model));
 
 
         /*ConnectionDB.setDBSettings(Store.readFile());
@@ -83,17 +88,25 @@ public class Main {
 
     @TableName("teste")
     public static class Model {
-        @PrimaryKey
+        @PrimaryKey("id")
         private int anInt;
-        @TableCollumn
+        @TableCollumn("nome_completo")
         private String nome;
         @ForeignKey
         private Model1 foreign;
+        @Ignore
+        private boolean maisUm;
+        @ForeignKey
+        private Model2 forerign2;
+        private boolean hasKey;
 
         public Model() {
             anInt = 1;
             nome = "novo nome";
             foreign = new Model1();
+            maisUm = false;
+            forerign2 = new Model2();
+            hasKey = true;
         }
     }
 
@@ -107,6 +120,18 @@ public class Main {
         public Model1() {
             id = 100;
             nome = "nome estrangeiro";
+        }
+    }
+
+    @TableName("modelo 2")
+    public static class Model2 {
+        @PrimaryKey("identidade")
+        private int id;
+        private String nome;
+
+        public Model2() {
+            id = 53;
+            nome = "nome esquisito";
         }
     }
 }

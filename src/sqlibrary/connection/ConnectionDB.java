@@ -20,11 +20,6 @@ public class ConnectionDB {
         dbSettings = set;
     }
 
-    public static boolean dbExists(Class<?> x) {
-        Preferences prefs = Preferences.userRoot().node(x.getName());
-        return prefs.getBoolean("BancoDados", false);
-    }
-
     protected Connection getConnection() {
         if (dbSettings == null) {
             System.out.println("Configurações do Banco de dados não disponível");
@@ -32,12 +27,10 @@ public class ConnectionDB {
         }
         try {
             Class.forName(dbSettings.getClassForName());
-            switch (dbSettings.getType()) {
-                case SQLITE:
-                    return DriverManager.getConnection(dbSettings.getURL());
-                default:
-                    return DriverManager.getConnection(dbSettings.getURL(), dbSettings.getUser(), dbSettings.getPassword());
+            if (dbSettings.getType() == DBType.SQLITE) {
+                return DriverManager.getConnection(dbSettings.getURL());
             }
+            return DriverManager.getConnection(dbSettings.getURL(), dbSettings.getUser(), dbSettings.getPassword());
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();

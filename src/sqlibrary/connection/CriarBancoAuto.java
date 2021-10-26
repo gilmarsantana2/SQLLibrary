@@ -23,14 +23,13 @@ public class CriarBancoAuto {
     private static final String WHITE = "\033[0;97m";   // WHITE
     public static final String CYAN = "\033[0;36m";    // CYAN
 
-    public static boolean autoCreate(Class<?> wrapper, FileInputStream sql){
+    public static void autoCreate( FileInputStream sql){
         DBSettings dbSettings = settingsByTerminal();
         Store.createFile(dbSettings);
-        createBancoPadrao(dbSettings, wrapper, sql);
-        return ConnectionDB.dbExists(wrapper);
+        createBancoPadrao(dbSettings, sql);
     }
 
-    public static void createBancoPadrao(DBSettings settings, Class<?> wrapper, FileInputStream inputFile) {
+    public static void createBancoPadrao(DBSettings settings, FileInputStream inputFile) {
         ConnectionDB.setDBSettings(settings);
         // Delimiter
         String delimiter = ";";
@@ -64,16 +63,13 @@ public class CriarBancoAuto {
         }
         //fim do loop
 
-        //Ativa o banco de dados padrao
-        Preferences prefs = Preferences.userRoot().node(wrapper.getName());
-        prefs.putBoolean("BancoDados", true);
     }
 
     public static DBSettings settingsByTerminal() {
         Scanner scan = new Scanner(System.in);
-        Integer tipoBanco;
+        int tipoBanco;
         String host, user, password , name, correto;
-        Integer porta = 0;
+        int porta = 0;
         DBType type;
 
         System.out.print(WHITE);

@@ -4,16 +4,9 @@ import sqlibrary.annotation.ForeignKey;
 import sqlibrary.annotation.PrimaryKey;
 import sqlibrary.annotation.TableCollumn;
 import sqlibrary.annotation.TableName;
-import sqlibrary.connection.*;
-import sqlibrary.util.Store;
+import sqlibrary.queries.SQLQueries;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
+import java.lang.reflect.Field;
 
 
 /**
@@ -29,7 +22,7 @@ public class Main {
             e.printStackTrace();
         }*/
 
-        DBSettings banco = CriarBancoAuto.settingsByTerminal();
+       // DBSettings banco = CriarBancoAuto.settingsByTerminal();
         //Store.createFile(banco);
         //System.out.println(Store.readFile());
 
@@ -43,7 +36,7 @@ public class Main {
             }
         }*/
 
-        /*Model model = new Model();
+        Model1 model = new Model1();
         System.out.println(SQLQueries.delete(model));
         System.out.println(SQLQueries.insertInto(model));
         System.out.println(SQLQueries.update(model));
@@ -51,7 +44,8 @@ public class Main {
         System.out.println(SQLQueries.getLastID(model));
         System.out.println(SQLQueries.selectById(model));
 
-        ConnectionDB.setDBSettings(Store.readFile());
+
+        /*ConnectionDB.setDBSettings(Store.readFile());
 
         DAO<Model> dao = new DAO() {
             @Override
@@ -87,51 +81,27 @@ public class Main {
         System.out.println("Consulta pelo DAO: Ultimo ID foi " + id.get(0).getId());*/
     }
 
-    @TableName(table = "teste")
+    @TableName("teste")
     public static class Model {
-        @PrimaryKey(key = "id")
-        private int id;
-        @TableCollumn(name = "nome")
+        @PrimaryKey
+        private int anInt;
+        @TableCollumn
         private String nome;
-        @ForeignKey(key = "estrangeiro_key")
+        @ForeignKey
         private Model1 foreign;
 
         public Model() {
-            id = 1;
+            anInt = 1;
             nome = "novo nome";
             foreign = new Model1();
         }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getNome() {
-            return nome;
-        }
-
-        public void setNome(String nome) {
-            this.nome = nome;
-        }
-
-        public Model1 getForeign() {
-            return foreign;
-        }
-
-        public void setForeign(Model1 foreign) {
-            this.foreign = foreign;
-        }
     }
 
-    @TableName(table = "estrangeiro")
+    @TableName("estrangeiro")
     public static class Model1 {
-        @PrimaryKey(key = "id")
+        @PrimaryKey("identidade")
         private int id;
-        @TableCollumn(name = "nome_de_fora")
+        @TableCollumn("nome_de_fora")
         private String nome;
 
         public Model1() {

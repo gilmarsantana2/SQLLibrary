@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 public class SQLQueries {
     /**
      * Script INSERT INTO
+     *
      * @param model Classe Model que deve conter as anotações
      * @return INSERT INTO teste (nome,estrangeiro_key) VALUES ('novo nome','100');
      */
@@ -19,11 +20,15 @@ public class SQLQueries {
         for (Field field : classe.getDeclaredFields()) {
             if (field.isAnnotationPresent(TableCollumn.class)) {
                 TableCollumn att = field.getAnnotation(TableCollumn.class);
-                sql += att.name() + ",";
+
+                if (att.value().isBlank()) sql += field.getName() + ",";
+                else sql += att.value() + ",";
             }
             if (field.isAnnotationPresent(ForeignKey.class)) {
                 ForeignKey att = field.getAnnotation(ForeignKey.class);
-                sql += att.key() + ",";
+
+                if (att.value().isBlank()) sql += field.getName() + ",";
+                else sql += att.value() + ",";
             }
         }
         //remove a ultima virgula
@@ -45,7 +50,7 @@ public class SQLQueries {
             if (field.isAnnotationPresent(ForeignKey.class)) {
                 field.setAccessible(true);
                 Class<?> foreignTable = field.getType();
-                for(Field foreignKey: foreignTable.getDeclaredFields()){
+                for (Field foreignKey : foreignTable.getDeclaredFields()) {
                     foreignKey.setAccessible(true);
                     if (foreignKey.isAnnotationPresent(PrimaryKey.class)) {
                         try {
@@ -67,14 +72,17 @@ public class SQLQueries {
 
     /**
      * Script DELETE
+     *
      * @param model Classe Model que deve conter as anotações
      * @return DELETE FROM teste WHERE id = '1';
      */
     public static String delete(Object model) {
         return "DELETE FROM " + getTableName(model) + " WHERE " + getPrimaryKey(model) + ";";
     }
+
     /**
      * Script UPDATE
+     *
      * @param model Classe Model que deve conter as anotações
      * @return UPDATE teste SET nome = 'novo nome', estrangeiro_key = '100' WHERE id = '1';
      */
@@ -87,9 +95,12 @@ public class SQLQueries {
                 TableCollumn collum = field.getAnnotation(TableCollumn.class);
                 try {
                     try {
-                        sql += collum.name() + " = '" + field.get(model) + "', ";
+                        if (collum.value().isBlank()) sql += field.getName() + " = '" + field.get(model) + "', ";
+                        else sql += collum.value() + " = '" + field.get(model) + "', ";
+
                     } catch (NullPointerException e) {
-                        sql += collum.name() + " = default, ";
+                        if (collum.value().isBlank()) sql += field.getName() + " = default, ";
+                        else sql += collum.value() + " = default, ";
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
@@ -99,20 +110,20 @@ public class SQLQueries {
                 field.setAccessible(true);
                 Class<?> foreignTable = field.getType();
                 ForeignKey key = field.getAnnotation(ForeignKey.class);
-                for(Field foreignKey: foreignTable.getDeclaredFields()){
+                for (Field foreignKey : foreignTable.getDeclaredFields()) {
                     foreignKey.setAccessible(true);
                     if (foreignKey.isAnnotationPresent(PrimaryKey.class)) {
                         try {
-                            sql += key.key() +  " = '" + foreignKey.get(field.get(model)) + "',";
+                            if (key.value().isBlank())
+                                sql += field.getName() + " = '" + foreignKey.get(field.get(model)) + "',";
+                            else sql += key.value() + " = '" + foreignKey.get(field.get(model)) + "',";
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
                         }
                         break;
                     }
-
                 }
             }
-
         }
         //remove a ultima virgula
         sql = sql.substring(0, sql.lastIndexOf(",")) + " WHERE " + getPrimaryKey(model) + ";";
@@ -121,6 +132,7 @@ public class SQLQueries {
 
     /**
      * Script SELECT para um unico Elemento contendo PrimaryKey
+     *
      * @param model Classe Model que deve conter as anotações
      * @return SELECT * FROM teste WHERE id = '1';
      */
@@ -130,8 +142,9 @@ public class SQLQueries {
 
     /**
      * Script SELECT para varios Elementos
+     *
      * @param tableName Nome da Classe da consulta
-     * @param search Busca de todos os elemetos personalizado
+     * @param search    Busca de todos os elemetos personalizado
      * @return SELECT * FROM teste WHERE Script Personalizado;
      */
     public static String selectSpecial(String tableName, String search) {
@@ -140,6 +153,7 @@ public class SQLQueries {
 
     /**
      * Script Select para todos os itens da tabela sem restrições
+     *
      * @param tableName Nome da tabela a ser consultada
      * @return SELECT * FROM teste;
      */
@@ -149,19 +163,21 @@ public class SQLQueries {
 
     /**
      * Script de busca do Ultimo PrimaryKey inserido na tabela
+     *
      * @param model Classe que deve conter as anotações;
      * @return SELECT id FROM teste ORDER BY id DESC LIMIT 1;
      */
-    public static String getLastID(Object model){
+    public static String getLastID(Object model) {
         var sql1 = "SELECT ";
-        var sql2 = " FROM "+ getTableName(model) + " ORDER BY ";
+        var sql2 = " FROM " + getTableName(model) + " ORDER BY ";
         var sql3 = "";
         var sql4 = " DESC LIMIT 1;";
         Class<?> classe = model.getClass();
         for (Field field : classe.getDeclaredFields()) {
             if (field.isAnnotationPresent(PrimaryKey.class)) {
                 PrimaryKey att = field.getAnnotation(PrimaryKey.class);
-                sql3 = att.key();
+                if (att.value().isBlank()) sql3 = field.getName();
+                else sql3 = att.value();
                 break;
             }
         }
@@ -173,7 +189,7 @@ public class SQLQueries {
         String tableName = "";
         if (classe.isAnnotationPresent(TableName.class)) {
             TableName table = classe.getAnnotation(TableName.class);
-            tableName = table.table();
+            tableName = table.value();
         } else throw new NullPointerException();
         return tableName;
     }
@@ -186,7 +202,8 @@ public class SQLQueries {
                 field.setAccessible(true);
                 PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
                 try {
-                    key = primaryKey.key() + " = '" + field.getInt(model) + "'";
+                    if (primaryKey.value().isBlank()) key = field.getName() + " = '" + field.getInt(model) + "'";
+                    else key = primaryKey.value() + " = '" + field.getInt(model) + "'";
                     break;
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();

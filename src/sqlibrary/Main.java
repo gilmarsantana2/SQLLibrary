@@ -4,23 +4,23 @@ import sqlibrary.annotation.ForeignKey;
 import sqlibrary.annotation.PrimaryKey;
 import sqlibrary.annotation.TableCollumn;
 import sqlibrary.annotation.TableName;
+import sqlibrary.connection.ConnectionDB;
+import sqlibrary.connection.CriarBancoAuto;
 import sqlibrary.queries.SQLQueries;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 
 /**
  * classe de teste de scripts de SQL
  */
 public class Main {
-    public static void main(String[] args) {
 
-        /*Preferences preferences = Preferences.userNodeForPackage(Main.class);
-        try {
-            System.out.println(preferences.nodeExists("BancoDados"));
-        } catch (BackingStoreException e) {
-            e.printStackTrace();
-        }*/
+    public static void main(String[] args) {
 
        // DBSettings banco = CriarBancoAuto.settingsByTerminal();
         //Store.createFile(banco);
@@ -35,14 +35,14 @@ public class Main {
                 e.printStackTrace();
             }
         }*/
-
+/*
         Model1 model = new Model1();
         System.out.println(SQLQueries.delete(model));
         System.out.println(SQLQueries.insertInto(model));
         System.out.println(SQLQueries.update(model));
         System.out.println(SQLQueries.selectAll("teste"));
         System.out.println(SQLQueries.getLastID(model));
-        System.out.println(SQLQueries.selectById(model));
+        System.out.println(SQLQueries.selectById(model));*/
 
 
         /*ConnectionDB.setDBSettings(Store.readFile());

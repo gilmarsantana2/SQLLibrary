@@ -65,7 +65,7 @@ public class CriarBancoAuto {
         //fim do loop
 
         //Ativa o banco de dados padrao
-        Preferences prefs = Preferences.userNodeForPackage(wrapper);
+        Preferences prefs = Preferences.userRoot().node(wrapper.getName());
         prefs.putBoolean("BancoDados", true);
     }
 

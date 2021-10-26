@@ -21,7 +21,7 @@ public class ConnectionDB {
     }
 
     public static boolean dbExists(Class<?> x) {
-        Preferences prefs = Preferences.userNodeForPackage(x);
+        Preferences prefs = Preferences.userRoot().node(x.getName());
         return prefs.getBoolean("BancoDados", false);
     }
 

@@ -6,5 +6,5 @@ module SQLLibrary {
     exports sqlibrary.annotation;
     exports sqlibrary.connection;
     exports sqlibrary.queries;
-    opens sqlibrary.util;
+    exports sqlibrary.util;
 }

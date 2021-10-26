@@ -1,7 +1,6 @@
 package sqlibrary.connection;
 
 import java.sql.*;
-import java.util.prefs.Preferences;
 
 public class ConnectionDB {
     private Connection con = null;

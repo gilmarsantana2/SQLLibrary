@@ -35,19 +35,19 @@ public class Main {
         }*/
         Model model = new Model();
         Model1 model1 = new Model1();
-        Model2 model2 = new Model2();
+        Model2 model2 = new Model2(1, "Gilmar", "Silva");
 
         System.out.println(SQLQueries.insertInto(model));
         System.out.println(SQLQueries.update(model));
         //System.out.println(SQLQueries.insertInto(model1));
         //System.out.println(SQLQueries.update(model1));
-        //System.out.println(SQLQueries.insertInto(model2));
-        //System.out.println(SQLQueries.update(model2));
+        System.out.println(SQLQueries.insertInto(model2));
+        System.out.println(SQLQueries.update(model2));
 
-        System.out.println(SQLQueries.delete(model));
-        System.out.println(SQLQueries.selectAll("teste"));
-        System.out.println(SQLQueries.getLastID(model));
-        System.out.println(SQLQueries.selectById(model));
+        System.out.println(SQLQueries.delete(model2));
+        //System.out.println(SQLQueries.selectAll("teste"));
+        System.out.println(SQLQueries.getLastID(model2));
+        System.out.println(SQLQueries.selectById(model2));
 
 
         /*ConnectionDB.setDBSettings(Store.readFile());
@@ -88,7 +88,7 @@ public class Main {
 
     @TableName("teste")
     public static class Model {
-        @PrimaryKey("id")
+        @PrimaryKey
         private int anInt;
         @TableCollumn("nome_completo")
         private String nome;
@@ -109,7 +109,7 @@ public class Main {
             nome = "novo-nome";
             foreign = new Model1();
             maisUm = false;
-            forerign2 = new Model2();
+            forerign2 = new Model2(6, "", "");
             hasKey = true;
             numero = 3;
         }
@@ -128,16 +128,8 @@ public class Main {
         }
     }
 
-    @TableName("modelo 2")
-    public static class Model2 {
-        @PrimaryKey("identidade")
-        private int id;
-        private String nome;
-
-        public Model2() {
-            id = 53;
-            nome = "nome esquisito";
-        }
+    @TableName("modelo-2")
+    public static record Model2(@PrimaryKey("identidade") int id, String nome, String sobrenome) {
     }
 
     public static class Adaptador extends SQLAdapter<Number>{

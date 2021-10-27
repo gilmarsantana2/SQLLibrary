@@ -232,7 +232,7 @@ public class SQLQueries {
                 try {
                     try {
                         if (primaryKey.value().isBlank())
-                            key = field.getName() + " = '" + field.get(model).toString() + "'";
+                            key = field.getName() + " = " + field.get(model).toString() + "";
                         else key = primaryKey.value() + " = " + field.get(model).toString() + "";
                     } catch (NullPointerException e) {
                         if (primaryKey.value().isBlank()) key = field.getName() + " = " + 0;

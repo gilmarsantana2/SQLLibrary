@@ -3,6 +3,7 @@ package sqlibrary;
 import sqlibrary.annotation.*;
 import sqlibrary.connection.ConnectionDB;
 import sqlibrary.connection.CriarBancoAuto;
+import sqlibrary.queries.SQLAdapter;
 import sqlibrary.queries.SQLQueries;
 
 import java.io.FileInputStream;
@@ -32,17 +33,16 @@ public class Main {
                 e.printStackTrace();
             }
         }*/
-
         Model model = new Model();
         Model1 model1 = new Model1();
         Model2 model2 = new Model2();
 
         System.out.println(SQLQueries.insertInto(model));
         System.out.println(SQLQueries.update(model));
-        System.out.println(SQLQueries.insertInto(model1));
-        System.out.println(SQLQueries.update(model1));
-        System.out.println(SQLQueries.insertInto(model2));
-        System.out.println(SQLQueries.update(model2));
+        //System.out.println(SQLQueries.insertInto(model1));
+        //System.out.println(SQLQueries.update(model1));
+        //System.out.println(SQLQueries.insertInto(model2));
+        //System.out.println(SQLQueries.update(model2));
 
         System.out.println(SQLQueries.delete(model));
         System.out.println(SQLQueries.selectAll("teste"));
@@ -92,6 +92,9 @@ public class Main {
         private int anInt;
         @TableCollumn("nome_completo")
         private String nome;
+        @TableCollumn("numero-adaptado")
+        @SQLAdapterFormat(Adaptador.class)
+        private Number numero;
         @ForeignKey
         private Model1 foreign;
         @Ignore
@@ -100,13 +103,15 @@ public class Main {
         private Model2 forerign2;
         private boolean hasKey;
 
+
         public Model() {
             anInt = 1;
-            nome = "novo nome";
+            nome = "novo-nome";
             foreign = new Model1();
             maisUm = false;
             forerign2 = new Model2();
             hasKey = true;
+            numero = 3;
         }
     }
 
@@ -132,6 +137,15 @@ public class Main {
         public Model2() {
             id = 53;
             nome = "nome esquisito";
+        }
+    }
+
+    public static class Adaptador extends SQLAdapter<Number>{
+
+        @Override
+        public Object setAdapter(Number adapter) throws Exception {
+            Integer sum = adapter.intValue() + 5;
+            return sum;
         }
     }
 }

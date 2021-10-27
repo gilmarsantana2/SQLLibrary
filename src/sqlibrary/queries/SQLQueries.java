@@ -3,6 +3,8 @@ package sqlibrary.queries;
 import sqlibrary.annotation.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class SQLQueries {
     /**
@@ -59,13 +61,9 @@ public class SQLQueries {
                 else
                     throw new NullPointerException("Anotação PrimaryKey não encontrada na classe " + foreignTable.getName());
             }
-            if (field.isAnnotationPresent(TableCollumn.class)) {
+            if (field.isAnnotationPresent(SQLAdapterFormat.class)) {
                 field.setAccessible(true);
-                try {
-                    sql.append(getFieldType(field.get(model)));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+                sql.append(getAdapterFormater(field, model));
             } else {
                 field.setAccessible(true);
                 try {
@@ -113,7 +111,8 @@ public class SQLQueries {
                         try {
                             if (key.value().isBlank())
                                 sql.append(field.getName()).append(" = ").append(getFieldType(foreignKey.get(field.get(model))));
-                            else sql.append(key.value()).append(" = ").append(getFieldType(foreignKey.get(field.get(model))));
+                            else
+                                sql.append(key.value()).append(" = ").append(getFieldType(foreignKey.get(field.get(model))));
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
                         }
@@ -129,15 +128,21 @@ public class SQLQueries {
                 field.setAccessible(true);
                 TableCollumn collum = field.getAnnotation(TableCollumn.class);
                 try {
-                    if (collum.value().isBlank()) sql.append(field.getName()).append(" = ").append(getFieldType(field.get(model)));
-                    else sql.append(collum.value()).append(" = ").append(getFieldType(field.get(model)));
+                    if (collum.value().isBlank()) sql.append(field.getName()).append(" = ");
+                    else sql.append(collum.value()).append(" = ");
+                    if (field.isAnnotationPresent(SQLAdapterFormat.class)) {
+                        sql.append(getAdapterFormater(field, model));
+                    } else sql.append(getFieldType(field.get(model)));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             } else {
                 field.setAccessible(true);
                 try {
-                    sql.append(field.getName()).append(" = ").append(getFieldType(field.get(model)));
+                    sql.append(field.getName()).append(" = ");
+                    if (field.isAnnotationPresent(SQLAdapterFormat.class)){
+                        sql.append(getAdapterFormater(field, model));
+                    } else sql.append(getFieldType(field.get(model)));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -251,4 +256,16 @@ public class SQLQueries {
         else return "'" + value + "', ";
     }
 
+    private static String getAdapterFormater(Field target, Object model) {
+        SQLAdapterFormat format = target.getAnnotation(SQLAdapterFormat.class);
+        Class<?> adapter = format.value();
+        try {
+            Method method = adapter.getDeclaredMethod("setAdapter", Object.class);
+            SQLAdapter t = (SQLAdapter) adapter.getDeclaredConstructor().newInstance();
+            return getFieldType(method.invoke(t, target.get(model)));
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

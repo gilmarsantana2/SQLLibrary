@@ -47,7 +47,6 @@ public class CriarBancoAuto {
                 currentStatement.execute(rawStatement);
             } catch (SQLException e) {
                 e.printStackTrace();
-                return;
             } finally {
                 // Release resources
                 if (currentStatement != null) {
@@ -58,11 +57,8 @@ public class CriarBancoAuto {
                         e.printStackTrace();
                     }
                 }
-                currentStatement = null;
             }
         }
-        //fim do loop
-
     }
 
     public static DBSettings settingsByTerminal() {

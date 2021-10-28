@@ -3,12 +3,17 @@ package sqlibrary;
 import sqlibrary.annotation.*;
 import sqlibrary.connection.ConnectionDB;
 import sqlibrary.connection.CriarBancoAuto;
+import sqlibrary.connection.DAO;
 import sqlibrary.queries.SQLAdapter;
 import sqlibrary.queries.SQLQueries;
+import sqlibrary.util.Store;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -35,22 +40,22 @@ public class Main {
         }*/
         Model model = new Model();
         Model1 model1 = new Model1();
-        Model2 model2 = new Model2(1, "Gilmar", "Silva");
+        Model2 model2 = new Model2(1, "Gilmar", 3);
 
-        System.out.println(SQLQueries.insertInto(model));
+        /*System.out.println(SQLQueries.insertInto(model));
         System.out.println(SQLQueries.update(model));
-        //System.out.println(SQLQueries.insertInto(model1));
-        //System.out.println(SQLQueries.update(model1));
+        System.out.println(SQLQueries.insertInto(model1));
+        System.out.println(SQLQueries.update(model1));
         System.out.println(SQLQueries.insertInto(model2));
         System.out.println(SQLQueries.update(model2));
 
         System.out.println(SQLQueries.delete(model2));
         //System.out.println(SQLQueries.selectAll("teste"));
         System.out.println(SQLQueries.getLastID(model2));
-        System.out.println(SQLQueries.selectById(model2));
+        System.out.println(SQLQueries.selectById(model2));*/
 
 
-        /*ConnectionDB.setDBSettings(Store.readFile());
+        ConnectionDB.setDBSettings(Store.readFile());
 
         DAO<Model> dao = new DAO() {
             @Override
@@ -65,7 +70,7 @@ public class Main {
                 List<Model> lista = new ArrayList<>();
                 try {
                     while (getResultSet().next()) {
-                        model.setId(getResultSet().getInt(1));
+                        model.setAnInt(getResultSet().getInt(1));
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -83,7 +88,8 @@ public class Main {
         };
 
         List<Model> id = dao.selectWithFilter("SELECT id FROM teste ORDER BY id DESC LIMIT 1;");
-        System.out.println("Consulta pelo DAO: Ultimo ID foi " + id.get(0).getId());*/
+        System.out.println("Consulta pelo DAO: Ultimo ID foi " + id.get(0).getAnInt());
+        dao.showSQL(true);
     }
 
     @TableName("teste")
@@ -109,9 +115,17 @@ public class Main {
             nome = "novo-nome";
             foreign = new Model1();
             maisUm = false;
-            forerign2 = new Model2(6, "", "");
+            forerign2 = new Model2(6, "", 0);
             hasKey = true;
             numero = 3;
+        }
+
+        public int getAnInt() {
+            return anInt;
+        }
+
+        public void setAnInt(int anInt) {
+            this.anInt = anInt;
         }
     }
 
@@ -129,7 +143,8 @@ public class Main {
     }
 
     @TableName("modelo-2")
-    public static record Model2(@PrimaryKey("identidade") int id, String nome, String sobrenome) {
+    public static record Model2(@PrimaryKey("identidade") int id, String nome, @SQLAdapterFormat(Adaptador.class) int idade) {
+
     }
 
     public static class Adaptador extends SQLAdapter<Number>{

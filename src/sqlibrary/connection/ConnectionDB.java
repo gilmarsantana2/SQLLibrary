@@ -6,6 +6,7 @@ public class ConnectionDB {
     private Connection con = null;
     private Statement statement = null;
     private ResultSet resultSet = null;
+    private String scriptSql;
 
     private static DBSettings dbSettings;
 
@@ -40,11 +41,20 @@ public class ConnectionDB {
         }
     }
 
+    protected String printSQL(boolean print){
+        if (print){
+            System.out.println(scriptSql);
+            return scriptSql;
+        }
+        return "Print SQL is false";
+    }
+
     /*
      * Execute Query retorna um ResultSet
      * Ideal para SQL tipo Select
      * */
     protected void selectSQL(String pSQL) {
+        scriptSql = pSQL;
         try {
             con = getConnection();
             statement = con.createStatement();
@@ -56,6 +66,7 @@ public class ConnectionDB {
     }
 
     protected boolean executarUpdateDeleteSQL(String pSQL) {
+        scriptSql = pSQL;
         try {
             con = getConnection();
             statement = con.createStatement();
@@ -71,6 +82,7 @@ public class ConnectionDB {
     }
 
     protected int insertSQL(String pSQL) {
+        scriptSql = pSQL;
         try {
             con = getConnection();
             statement = con.createStatement();

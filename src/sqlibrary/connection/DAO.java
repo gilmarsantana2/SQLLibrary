@@ -73,4 +73,13 @@ public abstract class DAO<T> extends ConnectionDB {
      */
     public abstract List<T> selectAll();
 
+    /**
+     * Metodo para Imprimir o Script SQL
+     * @param print true pra imprimir, false para ocultar
+     * @return Script SQl, ou show in console launcher
+     */
+    public String showSQL(boolean print){
+        return this.printSQL(print);
+    }
+
 }
